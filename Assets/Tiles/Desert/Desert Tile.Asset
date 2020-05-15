@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad886ad21b530dc4bb9be96573164f76, type: 3}
+  m_Name: Desert Tile
+  m_EditorClassIdentifier: 
+  m_Sprite: {fileID: 21300000, guid: c860caff734c90d47a0693bb00ab7eb8, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Transform:
+    e00: 1
+    e01: 0
+    e02: 0
+    e03: 0
+    e10: 0
+    e11: 1
+    e12: 0
+    e13: 0
+    e20: 0
+    e21: 0
+    e22: 1
+    e23: 0
+    e30: 0
+    e31: 0
+    e32: 0
+    e33: 1
+  m_InstancedGameObject: {fileID: 0}
+  m_Flags: 1
+  m_ColliderType: 1
+  m_Sprites:
+  - {fileID: 21300000, guid: 90d0e56772dbdea4189afb99cc8976dc, type: 3}
+  - {fileID: 21300000, guid: 55c1ebdb9dd599141b8aedce310ad25e, type: 3}
+  - {fileID: 21300000, guid: c646258f59c32a040a71ffe88be5b7ea, type: 3}
+  - {fileID: 21300000, guid: 07b9509416fd64b4db4968a96d6b6302, type: 3}
+  - {fileID: 21300000, guid: c860caff734c90d47a0693bb00ab7eb8, type: 3}
+  - {fileID: 21300000, guid: 52438e646a249734987a92ca8c65513f, type: 3}
+  - {fileID: 21300000, guid: cdf263e896f73254293fc7396cff62b0, type: 3}
+  - {fileID: 21300000, guid: 6ab14239b1d545d46b8bf380fb338888, type: 3}
+  - {fileID: 21300000, guid: 8711e4a26f91f694183375bf1d19da34, type: 3}
+  - {fileID: 21300000, guid: b90a72f892578054f95dd106937b1b15, type: 3}
+  - {fileID: 21300000, guid: 2143904fdcb770348b4225856f26e2a6, type: 3}
+  - {fileID: 21300000, guid: 2a58527aad7b1154ea5181b745b662cc, type: 3}
+  - {fileID: 21300000, guid: 40ea9abbd6bf94d43bf24a695f9e10be, type: 3}
+  - {fileID: 21300000, guid: b0877a5f7074d4945b802c689daea956, type: 3}
+  - {fileID: 21300000, guid: ad15a4381ccbc764a86722917ed1eb4a, type: 3}
+  - {fileID: 21300000, guid: 1e38e3974e2dde04c9f34ee4114afab9, type: 3}
+  - {fileID: 21300000, guid: 7a8b7306ea03f1240be2ffe6620ea58e, type: 3}
+  m_Preview: {fileID: 21300000, guid: c860caff734c90d47a0693bb00ab7eb8, type: 3}
+  enableCeilingMods: 1
+  leftCornerMod: {fileID: 21300000, guid: d7f3f6e71c883054592c3236014044aa, type: 3}
+  midMod: {fileID: 21300000, guid: e2c204a96de349045bc16eb4c7bbef1a, type: 3}
+  rightCornerMod: {fileID: 21300000, guid: 1cc1c5eee5b31f34fa10db4cfe324bc1, type: 3}
+  leftTrigger: 15
+  rightTrigger: 16
