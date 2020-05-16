@@ -80,6 +80,7 @@
     <Compile Include="Assets\Scripts\ObstacleSpawner.cs" />
     <Compile Include="Assets\Scripts\ObstaclesData.cs" />
     <Compile Include="Assets\Scripts\PlayerBehaviour.cs" />
+    <Compile Include="Assets\Scripts\Propeller.cs" />
     <Compile Include="Assets\Scripts\SelfDestruct.cs" />
     <Compile Include="Assets\Scripts\SpikeTrap.cs" />
     <Compile Include="Assets\Scripts\SwingingObstacle.cs" />

@@ -39,13 +39,6 @@ public class PlayerBehaviour : MonoBehaviour
         originalColor = spriteRenderer.color;
 
         shootOffset = new Vector2(spriteRenderer.bounds.extents.x + spriteRenderer.bounds.size.x * 0.4f, 0);
-
-        /*sheild init*/
-        SpriteRenderer sheildRenderer = sheild.GetComponent<SpriteRenderer>();
-        float scale = spriteRenderer.bounds.extents.y * 1.2f / sheildRenderer.bounds.extents.y;
-        Vector2 sheildOffset = new Vector2(spriteRenderer.bounds.extents.x + spriteRenderer.bounds.size.x * 0.1f, 0);
-        sheild.transform.localScale *= scale;
-        sheild.transform.position = playerBody.position + sheildOffset;
     }
 
     void Update()
