@@ -10,7 +10,7 @@ public class CameraManager : MonoBehaviour
         int perfectAspectRatio = 2;
         float deviation = perfectAspectRatio - Camera.main.aspect;
         float deltaSize = deviation * sizeFactor;
-        Camera.main.orthographicSize += deltaSize;
+        Camera.main.orthographicSize = 5 + deltaSize;
     }
 
     void FixedUpdate()

@@ -5,11 +5,9 @@ using UnityEngine;
 public class LinkNode : MonoBehaviour
 {
     HingeJoint2D nodeJoint;
-    private int _resilience;
-    private bool _isBroken;
 
-    public int resilience { get => _resilience; set => _resilience = value; }
-    public bool isBroken { get => _isBroken;}
+    public int resilience { get; set; }
+    public bool isBroken { get; private set; }
 
     private void Start()
     {
@@ -24,7 +22,7 @@ public class LinkNode : MonoBehaviour
             {
                 if (nodeJoint)
                 {
-                    _isBroken = true;
+                    isBroken = true;
                     SwingingObstacle swingingObstacle = GetComponentInParent<SwingingObstacle>();
                     if (swingingObstacle) swingingObstacle.BreakChain();
                     Destroy(nodeJoint);

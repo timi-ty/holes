@@ -7,9 +7,9 @@ TagManager:
   - Projectile
   - DestructibleObstacle
   - BoundaryTilemap
-  - Obstacle
   - EnemyProjectile
   - Sheild
+  - Explosive
   layers:
   - Default
   - TransparentFX

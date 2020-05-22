@@ -79,8 +79,17 @@ public class EnemyBehaviour : MonoBehaviour
             StartCoroutine(FlashRed());
             if (health <= 0)
             {
+                EnemyManager.KilledByPlayer(enemy: this, skillfulKill: false);
                 Die();
             }
+        }
+        if (collision.transform.CompareTag("Explosive"))
+        {
+            ExplosiveTrap explosive = collision.gameObject.GetComponent<ExplosiveTrap>();
+            if (!explosive.isHot) return; 
+            collision.rigidbody.AddForce(collision.GetContact(0).normal * -20, ForceMode2D.Impulse);
+            EnemyManager.KilledByPlayer(enemy: this, skillfulKill: true);
+            Die();
         }
     }
 
@@ -131,6 +140,7 @@ public class EnemyBehaviour : MonoBehaviour
             spriteRenderer.color = Color.Lerp(spriteRenderer.color, originalColor, 0.25f);
             yield return null;
         }
+        spriteRenderer.color = originalColor;
     }
 
     private void Die()

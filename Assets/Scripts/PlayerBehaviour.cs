@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
+using UnityEngine.UI;
 
 public class PlayerBehaviour : MonoBehaviour
 {
@@ -9,15 +9,21 @@ public class PlayerBehaviour : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Color originalColor;
     private Vector2 playerSize;
-    private Vector2 shootOffset;
+    private Propeller propeller;
+    public Transform playerGun;
     public ObjectPool bulletPool;
     public ParticleSystem shotSpark;
     public ParticleSystem hitSpark;
+    public ParticleSystem deathExplosion;
     public float shootRPM;
+    public Color bulletColor;
     public int maxOverdrive;
-    public GameObject sheild;
+    //public GameObject sheild;
     private int overDrive;
     public bool isInEditorMode;
+    private float angle;
+    private float health = 3;
+    public Image healthBar;
     void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -30,7 +36,7 @@ public class PlayerBehaviour : MonoBehaviour
 
         hitSpark = Instantiate(hitSpark, transform);
 
-        bulletPool.GenerateBullets(spriteRenderer.color);
+        bulletPool.GenerateBullets(bulletColor);
 
         bulletPool.GenerateMasks();
 
@@ -38,7 +44,8 @@ public class PlayerBehaviour : MonoBehaviour
 
         originalColor = spriteRenderer.color;
 
-        shootOffset = new Vector2(spriteRenderer.bounds.extents.x + spriteRenderer.bounds.size.x * 0.4f, 0);
+        propeller = GetComponentInChildren<Propeller>();
+        propeller.speed = shootRPM / 2;
     }
 
     void Update()
@@ -103,13 +110,40 @@ public class PlayerBehaviour : MonoBehaviour
         {
             ApplyInertia(Vector2.right * Time.fixedDeltaTime * GameManager.gameSpeed);
         }
+
+        playerBody.MoveRotation(angle);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.transform.CompareTag("EnemyProjectile") && !sheild.activeSelf)
+        if (collision.transform.CompareTag("EnemyProjectile"))// && !sheild.activeSelf)
         {
             StartCoroutine(FlashRed());
+            health--;
+            switch (health)
+            {
+                case 0: 
+                    healthBar.fillAmount = 0;
+                    break;
+                case 1:
+                    healthBar.fillAmount = 0.2f;
+                    break;
+                case 2:
+                    healthBar.fillAmount = 0.8f;
+                    break;
+                case 3:
+                    healthBar.fillAmount = 1;
+                    break;
+            }
+            if(health <= 0)
+            {
+                Die();
+            }
+        }
+        if (collision.transform.CompareTag("Explosive"))// && !sheild.activeSelf)
+        {
+            collision.rigidbody.AddForce(collision.GetContact(0).normal * -20, ForceMode2D.Impulse);
+            Die();
         }
     }
 
@@ -130,6 +164,13 @@ public class PlayerBehaviour : MonoBehaviour
         playerBody.MovePosition(clampedNewPos);
 
         lastPos = pos;
+
+        Vector2 normalToPlayer = Vector2.Perpendicular(transform.right);
+        Vector2 projection = Vector3.Project(deltaPos, normalToPlayer);
+        float deltaAngle = 45 * projection.magnitude * (Vector2.Angle(normalToPlayer, projection) == 0 ? 1 : -1);
+        angle += deltaAngle;
+
+        angle = (angle % 360) + (angle < 0 ? 360 : 0);
     }
 
     private void ApplyInertia(Vector2 deltaPos)
@@ -144,18 +185,21 @@ public class PlayerBehaviour : MonoBehaviour
                                             playerBounds.downBound, playerBounds.upBound));
 
         playerBody.MovePosition(clampedNewPos);
+
+        angle = Mathf.LerpAngle(angle, 0, Time.fixedDeltaTime * 5);
     }
 
     IEnumerator Shoot()
     {
-        sheild.SetActive(false);
+        //sheild.SetActive(false);
+        propeller.speed = shootRPM * 2;
         if (isInEditorMode)
         {
             while (Input.GetMouseButton(0))
             {
-                float direction = Random.value * 2.0f - 1.0f;
-                bulletPool.ShootBullet(playerBody.position + shootOffset, Quaternion.Euler(0, 0, direction), bulletSpeed: 10, hitSpark);
-                shotSpark.transform.SetPositionAndRotation(playerBody.position + shootOffset, Quaternion.Euler(0, 0, direction));
+                Quaternion sporadic = Quaternion.Euler(0, 0, Random.value * 2);
+                bulletPool.ShootBullet(playerGun.position, playerGun.rotation * sporadic, bulletSpeed: 10, hitSpark);
+                shotSpark.transform.SetPositionAndRotation(playerGun.position, playerGun.rotation);
                 shotSpark.Play();
                 yield return new WaitForSeconds(60.0f / shootRPM);
             }
@@ -165,24 +209,35 @@ public class PlayerBehaviour : MonoBehaviour
         {
             while (Input.touchCount > 0)
             {
-                float direction = Random.value * 2.0f - 1.0f;
-                bulletPool.ShootBullet(playerBody.position + shootOffset, Quaternion.Euler(0, 0, direction), bulletSpeed: 10, hitSpark);
-                shotSpark.transform.SetPositionAndRotation(playerBody.position + shootOffset, Quaternion.Euler(0, 0, direction));
+                Quaternion sporadic = Quaternion.Euler(0, 0, Random.value * 2);
+                bulletPool.ShootBullet(playerGun.position, playerGun.rotation * sporadic, bulletSpeed: 10, hitSpark);
+                shotSpark.transform.SetPositionAndRotation(playerGun.position, playerGun.rotation);
                 shotSpark.Play();
                 yield return new WaitForSeconds(60.0f / shootRPM);
             }
             overDrive--;
         }
-        sheild.SetActive(true);
+        //sheild.SetActive(true);
+        propeller.speed = shootRPM / 2;
     }
 
     private IEnumerator FlashRed()
     {
         spriteRenderer.color = Color.red;
-        for (int i = 0; i < 15; i++)
+        for (int i = 0; i < 60; i++)
         {
-            spriteRenderer.color = Color.Lerp(spriteRenderer.color, originalColor, 0.25f);
+            spriteRenderer.color = Color.Lerp(spriteRenderer.color, originalColor, 0.0625f);
             yield return null;
         }
+        spriteRenderer.color = originalColor;
+    }
+
+    private void Die()
+    {
+        healthBar.fillAmount = 0;
+        deathExplosion = Instantiate(deathExplosion);
+        deathExplosion.transform.position = transform.position;
+        deathExplosion.Play();
+        Destroy(gameObject);
     }
 }

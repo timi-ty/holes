@@ -8,6 +8,6 @@ public class Propeller : MonoBehaviour
     
     void Update()
     {
-        transform.rotation *= Quaternion.Euler(0, 0, speed * Time.deltaTime);
+        transform.rotation *= Quaternion.Euler(0, 0, -speed * Time.deltaTime);
     }
 }

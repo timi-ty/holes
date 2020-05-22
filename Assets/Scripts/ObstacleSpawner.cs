@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class ObstacleSpawner : MonoBehaviour
 {
@@ -8,14 +9,14 @@ public class ObstacleSpawner : MonoBehaviour
     public float spawnInterval;
     [Range(0.0f, 1.0f)]
     public float spawnProbability;
+
     [Header("Resources")]
     public ObstaclesData obstacleData;
-    public ObstaclesData.DestructibleObstacleType destructibleObstacleType;
-    public ObstaclesData.SwingingObstacleType swingingObstacleType;
     public DestructibleObstacle defaultDestructibleObstacle;
     public SwingingObstacle defaultSwingingObstacle;
-    public TilemapManager tilemapManager;
-    float timer;
+
+    private float timer;
+
     void Start()
     {
 
@@ -38,18 +39,28 @@ public class ObstacleSpawner : MonoBehaviour
         }
     }
 
-    void SpawnDestructibleObstacle()
+    private void SpawnDestructibleObstacle()
     {
-        Sprite obstacleSprite = obstacleData.GetSprite(destructibleObstacleType);
+        Vector2 ceilingPoint = Vector2.one * float.NegativeInfinity;
+        Vector2 floorPoint = Vector2.one * float.PositiveInfinity;
+        Vector3 screedEdge = new Vector3(Boundary.visibleWorldMax.x + (Boundary.visibleWorldSize.x * 0.1f), Boundary.visibleWorldCentre.y);
+
+        RaycastHit2D preRay = Physics2D.Raycast(screedEdge, Vector2.up);
+        
+        if(preRay.transform != null)
+        {
+            TileAssembler tilemap = preRay.transform.GetComponent<TileAssembler>();
+            if (!tilemap) return;
+            obstacleData.Refresh(tilemap.activeEnvironment);
+        }
+
+        Sprite obstacleSprite = obstacleData.GetDestructibleSprite();
 
         int widthRaffle = Random.Range(1, 5);
         float width = obstacleSprite.bounds.size.x * widthRaffle;
 
         DestructibleObstacle obstacle = Instantiate(defaultDestructibleObstacle, transform.position, Quaternion.identity, transform);
 
-        Vector2 ceilingPoint = Vector2.one * float.NegativeInfinity;
-        Vector2 floorPoint = Vector2.one * float.PositiveInfinity;
-        Vector3 screedEdge = new Vector3(Boundary.visibleWorldMax.x + (Boundary.visibleWorldSize.x * 0.1f), Boundary.visibleWorldCentre.y);
         Vector2 raycastOrigin = new Vector2(screedEdge.x + width/2, Boundary.visibleWorldMin.y);
 
         while (raycastOrigin.y <= Boundary.visibleWorldMax.y)
@@ -64,8 +75,7 @@ public class ObstacleSpawner : MonoBehaviour
             ceilingPoint = rayHitUp.transform.CompareTag("BoundaryTilemap") ? rayHitUp.point : ceilingPoint;
             floorPoint = rayHitDown.transform.CompareTag("BoundaryTilemap") ? rayHitDown.point : floorPoint;
 
-            if (rayHitUp.transform.CompareTag("DestructibleObstacle") 
-                || rayHitDown.transform.CompareTag("DestructibleObstacle"))
+            if (rayHitUp.transform.CompareTag("DestructibleObstacle") || rayHitDown.transform.CompareTag("DestructibleObstacle"))
                 raycastOrigin += new Vector2(1, -1) * 0.1f;
 
             if (ceilingPoint.y > floorPoint.y)
@@ -93,17 +103,15 @@ public class ObstacleSpawner : MonoBehaviour
 
         obstacle.Modify(sprite: obstacleSprite,
                         fragmentHeight: null,
-                        brittlenessFactor: obstacleData.GetBrittleness(destructibleObstacleType),
-                        damageMask: obstacleData.GetMask(destructibleObstacleType),
+                        brittlenessFactor: obstacleData.GetBrittleness(),
+                        damageMask: obstacleData.GetDestructionMask(),
                         damageDebris: null,
                         obstacleSize: obstacleSize);
     }
 
-    void SpawnSwingingObstacle()
+    private void SpawnSwingingObstacle()
     {
         SwingingObstacle swingingObstacle = Instantiate(defaultSwingingObstacle, transform);
-
-        Sprite obstacleSprite = obstacleData.GetSprite(swingingObstacleType);
 
         Vector2 ceilingPoint = Vector2.one * float.NegativeInfinity;
         Vector2 floorPoint = Vector2.one * float.PositiveInfinity;
@@ -140,6 +148,17 @@ public class ObstacleSpawner : MonoBehaviour
             return;
         }
 
+        RaycastHit2D postRay = Physics2D.Raycast(screedEdge, Vector2.up);
+
+        if (postRay.transform != null)
+        {
+            TileAssembler tilemap = postRay.transform.GetComponent<TileAssembler>();
+            if (!tilemap) { Destroy(swingingObstacle); return; }
+            obstacleData.Refresh(tilemap.activeEnvironment);
+        }
+
+        Sprite obstacleSprite = obstacleData.GetSwingingSprite();
+
         float obstacleLength = (ceilingPoint.y - floorPoint.y) / (Random.value + 1.1f);
 
         Vector2 hingePoint = new Vector2(ceilingPoint.x, ceilingPoint.y);
@@ -153,9 +172,9 @@ public class ObstacleSpawner : MonoBehaviour
                                 obstacleSprite: obstacleSprite,
                                 chainLength: obstacleLength,
                                 chainWidth: 0.05f,
-                                chainResilience: 5,
+                                chainResilience: obstacleData.GetResilience(),
                                 obstacleSize: 0.5f,
                                 hingeSprite: obstacleData.hingeSprite,
-                                isSpinning: true);
+                                isSpinning: obstacleData.GetSpin());
     }
 }

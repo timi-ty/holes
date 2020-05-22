@@ -60,3 +60,21 @@ MonoBehaviour:
   rightCornerMod: {fileID: 21300000, guid: 524f1835cbb4a1044801e751e18a5d11, type: 3}
   leftTrigger: 15
   rightTrigger: 16
+  environment: 1
+  defaultDebris: {fileID: 8024039451428974486, guid: 0c6193a505fb6314a8547e5fa8bede74,
+    type: 3}
+  debrisSprites:
+  - {fileID: 21300000, guid: 7a6b92d146d3b3547a51f172d2aa7a48, type: 3}
+  - {fileID: 21300000, guid: 6ddcc633379f15e43a8ca8c6c27e9a06, type: 3}
+  - {fileID: 21300000, guid: d9a8013966731494f9879ec20258705a, type: 3}
+  - {fileID: 21300000, guid: 4639f80298c41084589bf91512e0dbba, type: 3}
+  - {fileID: 21300000, guid: 6e99b5d49acd0b4499b3068369d985d0, type: 3}
+  folliageSprites:
+  - {fileID: 21300000, guid: 43b916c5976aaa4469e9632cbcb32720, type: 3}
+  - {fileID: 21300000, guid: ecbe23c3b54e1154a860907cbd623329, type: 3}
+  - {fileID: 21300000, guid: e309300f76c9df142b8d9bb972e79fe1, type: 3}
+  - {fileID: 21300000, guid: 50f2d50b4097fa64e99244ac1c13dde7, type: 3}
+  - {fileID: 21300000, guid: b9b08eb9fba954f41826294167dbe361, type: 3}
+  - {fileID: 21300000, guid: b87824e060f64b341b09fb19f16c5045, type: 3}
+  - {fileID: 21300000, guid: bf6fc3bb14959cf4fa02e65ad1995ded, type: 3}
+  - {fileID: 21300000, guid: 0c117515a155143488b5c73a9b1f35f6, type: 3}

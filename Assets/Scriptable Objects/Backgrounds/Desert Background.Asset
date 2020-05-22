@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad681149dc262954f9b04b34a789347a, type: 3}
+  m_Name: Desert Background
+  m_EditorClassIdentifier: 
+  layers:
+  - {fileID: 21300000, guid: f8716baf3db8458429aff5bcf8ecf646, type: 3}
+  - {fileID: 21300000, guid: a80fbeb7ce3156844a3b4607b23e3081, type: 3}
+  - {fileID: 21300000, guid: d26cb2b5f26b28c4b97df96225f9ef57, type: 3}
+  - {fileID: 21300000, guid: 275b2184d1cf0004093e25868db866ee, type: 3}
+  - {fileID: 21300000, guid: df51f64ced348a847a1b83c72bb7434e, type: 3}
+  layerSpeedRatio: 0100000002000000030000000400000005000000
+  overlay: {fileID: 21300000, guid: de7d156038bcd5c46b68910a57760bfa, type: 3}
+  overlayTint: {r: 1, g: 1, b: 1, a: 1}
+  environment: 0

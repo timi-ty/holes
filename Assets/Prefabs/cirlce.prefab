@@ -74,7 +74,7 @@ SpriteRenderer:
   m_SortingLayer: 1
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 933805793f61de743b1c02216e3f1788, type: 3}
-  m_Color: {r: 1, g: 0.7587075, b: 0, a: 1}
+  m_Color: {r: 0.4811321, g: 0.16567284, b: 0.29927918, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -134,7 +134,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bulletPool: {fileID: 11400000, guid: 659696faedd46f944a74adaf694dfc0e, type: 2}
-  shootRPM: 60
+  shootRPM: 30
   bulletSprite: {fileID: 21300000, guid: 933805793f61de743b1c02216e3f1788, type: 3}
   shotSpark: {fileID: 1380895843847493939, guid: 2a324c99cf48d3b479b7f29cebb1bb59,
     type: 3}

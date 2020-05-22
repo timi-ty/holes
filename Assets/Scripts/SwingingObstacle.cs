@@ -5,8 +5,8 @@ using UnityEngine;
 public class SwingingObstacle : MonoBehaviour
 {
     private List<LineRenderer> chainRenderers = new List<LineRenderer>();
-    LinkNode[] chainNodes;
-    int chainResilience;
+    private LinkNode[] chainNodes;
+    public int chainResilience;
     public Sprite obstacleSprite;
     public Sprite hingeSprite;
     public float chainLength;
@@ -15,8 +15,8 @@ public class SwingingObstacle : MonoBehaviour
     private const float linkLength = 0.25f;
     private bool isSpinning;
     private bool isCut;
-    Transform obstacle;
-    Transform hinge;
+    private ExplosiveTrap explosiveTrap;
+    private Transform hinge;
     void Start()
     {
         isCut = false;
@@ -27,12 +27,12 @@ public class SwingingObstacle : MonoBehaviour
     
     void Update()
     {
-        if (isSpinning && !isCut) obstacle.rotation *= Quaternion.Euler(0, 0, 450 * Time.deltaTime);
+        if (isSpinning && !isCut) explosiveTrap.transform.rotation *= Quaternion.Euler(0, 0, 450 * Time.deltaTime);
 
         DrawChain();
 
-        if(hinge.position.x < Boundary.visibleWorldMin.x - (Boundary.visibleWorldSize.x * 0.1f) && 
-            obstacle.position.x < Boundary.visibleWorldMin.x - (Boundary.visibleWorldSize.x * 0.1f))
+        if(hinge.position.x < Boundary.visibleWorldMin.x - (Boundary.visibleWorldSize.x * 0.1f) &&
+            explosiveTrap.transform.position.x < Boundary.visibleWorldMin.x - (Boundary.visibleWorldSize.x * 0.1f))
         {
             Destroy(gameObject);
         }
@@ -111,16 +111,16 @@ public class SwingingObstacle : MonoBehaviour
         }
 
         GameObject obstacleObject = new GameObject();
-        obstacle = obstacleObject.transform;
-        obstacle.SetParent(transform);
-        obstacle.name = "Obstacle";
-        obstacle.tag = "Obstacle";
+        obstacleObject.transform.SetParent(transform);
+        obstacleObject.transform.name = "Obstacle";
+        obstacleObject.transform.tag = "Explosive";
         SpriteRenderer obstacleRenderer = obstacleObject.AddComponent<SpriteRenderer>();
         obstacleRenderer.sprite = obstacleSprite;
         obstacleRenderer.sortingOrder = chainRenderers[0].sortingOrder + 1;
         float scale = obstacleSize / obstacleRenderer.bounds.size.y;
         obstacleObject.transform.localScale = Vector3.one * scale;
-        obstacleObject.AddComponent<PolygonCollider2D>();
+        obstacleObject.AddComponent<CircleCollider2D>();
+        explosiveTrap = obstacleObject.AddComponent<ExplosiveTrap>();
         chainNodes[linkCount] = obstacleObject.AddComponent<LinkNode>();
         Rigidbody2D obstacleBody = obstacleObject.AddComponent<Rigidbody2D>();
         obstacleBody.mass = 1f;
@@ -152,5 +152,7 @@ public class SwingingObstacle : MonoBehaviour
         LineRenderer segmentRenderer = Instantiate(chainRenderers[0], transform);
         chainRenderers.Add(segmentRenderer);
         isCut = true;
+
+        explosiveTrap.isHot = true;
     }
 }

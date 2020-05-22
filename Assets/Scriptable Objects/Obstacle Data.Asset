@@ -15,32 +15,20 @@ MonoBehaviour:
   crateObstacle: {fileID: 21300000, guid: 47d51f61ce92f724dbba0f134be8487f, type: 3}
   crateDestructionMask: {fileID: 21300000, guid: c8c89c1cb2eaa8e4baed12b658c31b9b,
     type: 3}
-  crateBrittlenessFactor: 5
+  crateBrittlenessFactor: 9
   stoneObstacle: {fileID: 21300000, guid: 0555ba7fd67bce446b6289ed6022e9c0, type: 3}
   stoneDestructionMask: {fileID: 21300000, guid: c8c89c1cb2eaa8e4baed12b658c31b9b,
     type: 3}
-  stoneBrittlenessFactor: 2
+  stoneBrittlenessFactor: 4
   iceObstacle: {fileID: 21300000, guid: 7ef63e7d53a37e44cb9ae5359f5a31c6, type: 3}
   iceDestructionMask: {fileID: 21300000, guid: 9eecc0f377e8bf94295093107053233d, type: 3}
-  iceBrittlenessFactor: 3
-  boulderObstacle: {fileID: -6416909932840195604, guid: 27141d1cb32b52d4786e3ad0190f9498,
+  iceBrittlenessFactor: 6
+  boulderObstacle: {fileID: -1093897896430776101, guid: 810dd0e1b7233f1408d7ee05f5ad9310,
     type: 3}
-  boulderDestructionMask: {fileID: 21300000, guid: 6f4ec31b5085a934083c98e11f4f35db,
-    type: 3}
-  boulderBrittlenesFactor: 0
   sawObstacle: {fileID: 21300000, guid: c8423d7b703df5248b83392a2db4b176, type: 3}
-  SawDestructionMask: {fileID: 21300000, guid: 9eecc0f377e8bf94295093107053233d, type: 3}
-  sawBrittlenessFactor: 0
   circleSawObstacle: {fileID: 21300000, guid: 3a0ea14e1fb3cf642a4a8738662c949c, type: 3}
-  circleSawDestructionMask: {fileID: 21300000, guid: 9eecc0f377e8bf94295093107053233d,
-    type: 3}
-  circleSawBrittlenessFactor: 0
-  chainLinkSprites:
-  - {fileID: 3815411085313569568, guid: 27141d1cb32b52d4786e3ad0190f9498, type: 3}
-  - {fileID: -7510147710331500846, guid: 27141d1cb32b52d4786e3ad0190f9498, type: 3}
-  chainLinkLength: 0
-  chainResilience: 0
-  ropeLinkSprites: []
-  ropeLinkLength: 0
-  ropeResilience: 0
+  chainMaterial: {fileID: 2100000, guid: 09309aaf1ba043f41bd08f628d5e8004, type: 2}
+  chainResilience: 5
+  ropeMaterial: {fileID: 2100000, guid: 673d934989ff21b41b186af1d200dee9, type: 2}
+  ropeResilience: 2
   hingeSprite: {fileID: 21300000, guid: 6e99b5d49acd0b4499b3068369d985d0, type: 3}

@@ -172,6 +172,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d5b966fbfe774e48b886884f880b217, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  chainResilience: 0
   obstacleSprite: {fileID: 21300000, guid: 3a0ea14e1fb3cf642a4a8738662c949c, type: 3}
   hingeSprite: {fileID: 21300000, guid: 6e99b5d49acd0b4499b3068369d985d0, type: 3}
   chainLength: 2.5

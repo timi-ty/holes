@@ -7,10 +7,6 @@ using UnityEditor;
 
 public class ObstaclesData : ScriptableObject
 {
-    public enum DestructibleObstacleType { Crate, Stone, Ice }
-    public enum SwingingObstacleType { Boulder, Saw, CircleSaw }
-    public enum ObstacleSuspender { Rope, Chain }
-
     [Header("Crate")]
     public Sprite crateObstacle;
     public Sprite crateDestructionMask;
@@ -31,102 +27,122 @@ public class ObstaclesData : ScriptableObject
 
     [Header("Boulder")]
     public Sprite boulderObstacle;
-    public Sprite boulderDestructionMask;
-    public int boulderBrittlenesFactor;
 
     [Header("Saw")]
     public Sprite sawObstacle;
-    public Sprite SawDestructionMask;
-    public int sawBrittlenessFactor;
 
     [Header("CircleSaw")]
     public Sprite circleSawObstacle;
-    public Sprite circleSawDestructionMask;
-    public int circleSawBrittlenessFactor;
 
     [Header("Chain")]
-    public List<Sprite> chainLinkSprites;
-    public int chainLinkLength;
+    public Material chainMaterial;
+    [Range(0, 10)]
     public int chainResilience;
 
     [Header("Rope")]
-    public List<Sprite> ropeLinkSprites;
-    public int ropeLinkLength;
+    public Material ropeMaterial;
+    [Range(0, 10)]
     public int ropeResilience;
 
     [Header("Hinge")]
     public Sprite hingeSprite;
 
-    public Sprite GetSprite(DestructibleObstacleType obstacleType)
+    private GameManager.Environment environment;
+
+    public void Refresh(GameManager.Environment environment)
     {
-        switch (obstacleType)
+        this.environment = environment;
+    }
+
+    public Sprite GetDestructibleSprite()
+    {
+        switch (environment)
         {
-            case DestructibleObstacleType.Crate: return crateObstacle;
-            case DestructibleObstacleType.Stone: return stoneObstacle;
-            case DestructibleObstacleType.Ice: return iceObstacle;
+            case GameManager.Environment.Desert:
+                return crateObstacle;
+            case GameManager.Environment.Snow:
+                return iceObstacle;
         }
-        Debug.LogError("Invalid obstacle type");
+        Debug.LogError("No Environment Set");
         return null;
     }
 
-    public Sprite GetSprite(SwingingObstacleType obstacleType)
+    public Sprite GetSwingingSprite()
     {
-        switch (obstacleType)
+        switch (environment)
         {
-            case SwingingObstacleType.Boulder: return boulderObstacle;
-            case SwingingObstacleType.Saw: return sawObstacle;
-            case SwingingObstacleType.CircleSaw: return circleSawObstacle;
+            case GameManager.Environment.Desert:
+                return boulderObstacle;
+            case GameManager.Environment.Snow:
+                return circleSawObstacle;
         }
-        Debug.LogError("Invalid obstacle type");
+        Debug.LogError("No Environment Set");
         return null;
     }
 
-    public Sprite GetMask(DestructibleObstacleType obstacleType)
+    public Sprite GetDestructionMask()
     {
-        switch (obstacleType)
+        switch (environment)
         {
-            case DestructibleObstacleType.Crate: return crateDestructionMask;
-            case DestructibleObstacleType.Stone: return stoneDestructionMask;
-            case DestructibleObstacleType.Ice: return iceDestructionMask;
+            case GameManager.Environment.Desert:
+                return crateDestructionMask;
+            case GameManager.Environment.Snow:
+                return iceDestructionMask;
         }
-        Debug.LogError("Invalid obstacle type");
+        Debug.LogError("No Environment Set");
         return null;
     }
 
-    public Sprite GetMask(SwingingObstacleType obstacleType)
+    public int GetBrittleness()
     {
-        switch (obstacleType)
+        switch (environment)
         {
-            case SwingingObstacleType.Boulder: return boulderDestructionMask;
-            case SwingingObstacleType.Saw: return SawDestructionMask;
-            case SwingingObstacleType.CircleSaw: return circleSawDestructionMask;
+            case GameManager.Environment.Desert:
+                return crateBrittlenessFactor;
+            case GameManager.Environment.Snow:
+                return iceBrittlenessFactor;
         }
-        Debug.LogError("Invalid obstacle type");
-        return null;
-    }
-
-    public int GetBrittleness(DestructibleObstacleType obstacleType)
-    {
-        switch (obstacleType)
-        {
-            case DestructibleObstacleType.Crate: return crateBrittlenessFactor;
-            case DestructibleObstacleType.Stone: return stoneBrittlenessFactor;
-            case DestructibleObstacleType.Ice: return iceBrittlenessFactor;
-        }
-        Debug.LogError("Invalid obstacle type");
+        Debug.LogError("No Environment Set");
         return 0;
     }
 
-    public int GetBrittleness(SwingingObstacleType obstacleType)
+    public int GetResilience()
     {
-        switch (obstacleType)
+        switch (environment)
         {
-            case SwingingObstacleType.Boulder: return boulderBrittlenesFactor;
-            case SwingingObstacleType.Saw: return sawBrittlenessFactor;
-            case SwingingObstacleType.CircleSaw: return circleSawBrittlenessFactor;
+            case GameManager.Environment.Desert:
+                return ropeResilience;
+            case GameManager.Environment.Snow:
+                return chainResilience;
         }
-        Debug.LogError("Invalid obstacle type");
+        Debug.LogError("No Environment Set");
         return 0;
+    }
+
+    public Material GetRopeMaterial()
+    {
+        switch (environment)
+        {
+            case GameManager.Environment.Desert:
+                return ropeMaterial;
+            case GameManager.Environment.Snow:
+                return chainMaterial;
+        }
+        Debug.LogError("No Environment Set");
+        return null;
+    }
+
+    public bool GetSpin()
+    {
+        switch (environment)
+        {
+            case GameManager.Environment.Desert:
+                return false;
+            case GameManager.Environment.Snow:
+                return true;
+        }
+        Debug.LogError("No Environment Set");
+        return false;
     }
 
 #if UNITY_EDITOR

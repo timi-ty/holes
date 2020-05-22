@@ -1,76 +1,21 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class BackgroundManager : MonoBehaviour
 {
-    SpriteRenderer spriteRenderer;
-    List<List<Transform>> backgroundSets = new List<List<Transform>>();
-    Vector2 backgroundExtents;
+    private List<List<Transform>> backgroundSets = new List<List<Transform>>();
+    private Transform backgroundOverlay;
+    private Vector2 backgroundExtents;
     private const float backgroundSpeed = 0.01875f;
-    [Range(0f, 12f)]
-    public List<int> layerSpeedRatio = new List<int>();
+    private List<int> layerSpeedRatio = new List<int>();
+
+    public List<Background> backgrounds = new List<Background>();
+    
     void Start()
     {
-        spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
 
-        if (!spriteRenderer)
-        {
-            throw new UnityException("Background parent must contain at least one sprite as a child object");
-        }
-
-        bool applyDefaultRatio = false;
-
-        if(layerSpeedRatio.Count < transform.childCount)
-        {
-            Debug.LogWarning("Speed ratio should correspond with number of background layers. Applying default ratio...");
-            applyDefaultRatio = true;
-            layerSpeedRatio = new List<int>();
-        }
-
-        backgroundExtents = ScaleBackgroundToScreen();
-
-        int backgroundSetCount = Mathf.CeilToInt(Boundary.visibleWorldExtents.x / backgroundExtents.x) + 1;
-
-        Vector3 position = new Vector3(Boundary.visibleWorldMin.x + backgroundExtents.x, Boundary.visibleWorldCentre.y);
-
-        for (int i = 0; i < backgroundSetCount; i++)
-        {
-            List<Transform> backgroundSet = new List<Transform>();
-
-            for (int j = 0; j < transform.childCount; j++)
-            {
-                if (i == 0)
-                {
-                    Transform backgroundLayer = transform.GetChild(j);
-                    backgroundLayer.position = position;
-                    backgroundSet.Add(backgroundLayer);
-
-                    if (applyDefaultRatio) layerSpeedRatio.Add(j + 1);
-                }
-                else
-                {
-                    Transform backgroundLayer = Instantiate(transform.GetChild(j), position, Quaternion.identity);
-                    backgroundLayer.name = transform.GetChild(j).name;
-                    backgroundSet.Add(backgroundLayer);
-                }
-            }
-
-            backgroundSets.Add(backgroundSet);
-
-            position.x += backgroundExtents.x * 1.99f;  //0.01f margin to avoid tearing between background sets
-        }
-
-        foreach(List<Transform> backgroundSet in backgroundSets)
-        {
-            foreach (Transform backgroundLayer in backgroundSet)
-            {
-                Vector3 formerScale = backgroundLayer.localScale;
-                backgroundLayer.SetParent(transform);
-                backgroundLayer.localScale = formerScale;
-            }
-        }
     }
 
     void FixedUpdate()
@@ -99,16 +44,119 @@ public class BackgroundManager : MonoBehaviour
                 backgroundLayer.position += deltaPosition;
             }
         }
+
+        if (backgroundOverlay)
+        {
+            Vector3 deltaPosition = Vector3.right * Time.fixedDeltaTime * GameManager.gameSpeed;
+
+            backgroundOverlay.position += deltaPosition;
+        }
     }
 
-    private Vector2 ScaleBackgroundToScreen()
+    public void SetBackground(GameManager.Environment environment)
     {
-        Vector2 imageSize = Camera.main.WorldToScreenPoint(Boundary.visibleWorldMin + (Vector2) spriteRenderer.bounds.size);
+        Background background = GetBackground(environment);
+
+        Sprite overlay = background.overlay;
+
+        layerSpeedRatio = background.layerSpeedRatio;
+
+        backgroundExtents = ScaleBackgroundToScreen(background.GetBackgroundSize());
+
+        int backgroundSetCount = Mathf.CeilToInt(Boundary.visibleWorldExtents.x / backgroundExtents.x) + 1;
+
+        Vector3 position = new Vector3(Boundary.visibleWorldMin.x + backgroundExtents.x, Boundary.visibleWorldCentre.y);
+
+        //Destroy all old background sets
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            Destroy(transform.GetChild(i).gameObject);
+        }
+        backgroundSets.Clear();
+
+        //Create new background sets
+        for (int i = 0; i < backgroundSetCount; i++)
+        {
+            List<Transform> backgroundSet = new List<Transform>();
+
+            for (int j = 0; j < background.layerCount; j++)
+            {
+                GameObject layerObject = new GameObject();
+                layerObject.transform.SetPositionAndRotation(position, Quaternion.identity);
+                SpriteRenderer layerRenderer = layerObject.AddComponent<SpriteRenderer>();
+                layerRenderer.sprite = background.GetLayerSprite(j);
+                layerRenderer.color = background.overlayTint;
+                layerRenderer.sortingLayerName = "Background";
+                layerRenderer.sortingOrder = j;
+                layerObject.name = layerRenderer.sprite.name;
+                backgroundSet.Add(layerObject.transform);
+            }
+
+            backgroundSets.Add(backgroundSet);
+
+            position.x += backgroundExtents.x * 1.99f;  //0.01f margin to avoid tearing between background sets
+
+            if (i == backgroundSetCount - 1 && overlay)
+            {
+                PlaceOverlay(overlay, background.layerCount, background.overlayTint);
+            }
+        }
+
+        foreach (List<Transform> backgroundSet in backgroundSets)
+        {
+            foreach (Transform backgroundLayer in backgroundSet)
+            {
+                Vector3 formerScale = backgroundLayer.localScale;
+                backgroundLayer.SetParent(transform);
+                backgroundLayer.localScale = formerScale;
+            }
+        }
+    }
+
+    private Background GetBackground(GameManager.Environment environment)
+    {
+        List<int> candidates = new List<int>();
+        for (int i = 0; i < backgrounds.Count; i++)
+        {
+            if (backgrounds[i].environment == environment)
+            {
+                candidates.Add(i);
+            }
+        }
+
+        int raffle = Random.Range(0, candidates.Count);
+            
+        return backgrounds[candidates[raffle]];
+    }
+
+    private Vector2 ScaleBackgroundToScreen(Vector2 backgroundSize)
+    {
+        Vector2 imageSize = Camera.main.WorldToScreenPoint(Boundary.visibleWorldMin + backgroundSize);
 
         float scale = Camera.main.pixelHeight / imageSize.y;
 
         transform.localScale = new Vector3(scale, scale, 1);
 
-        return spriteRenderer.bounds.extents;
+        return (backgroundSize * scale) / 2;
+    }
+
+    private void PlaceOverlay(Sprite overlay, int sortingOrder, Color tint)
+    {
+        Vector2 overlaySize = Camera.main.WorldToScreenPoint(Boundary.visibleWorldMin + (Vector2)overlay.bounds.size);
+
+        float overlayScaleX = Camera.main.pixelWidth / overlaySize.x;
+        float overlayScaleY = Camera.main.pixelHeight / overlaySize.y;
+
+        GameObject overlayObject = new GameObject();
+        backgroundOverlay = overlayObject.transform;
+        backgroundOverlay.SetPositionAndRotation(Boundary.visibleWorldCentre, Quaternion.identity);
+        backgroundOverlay.localScale = new Vector3(overlayScaleX, overlayScaleY, 1);
+        backgroundOverlay.SetParent(transform);
+        SpriteRenderer overlayRenderer = overlayObject.AddComponent<SpriteRenderer>();
+        overlayRenderer.sprite = overlay;
+        overlayRenderer.color = tint;
+        overlayRenderer.sortingLayerName = "Background";
+        overlayRenderer.sortingOrder = sortingOrder;
+        overlayObject.name = "Overlay";
     }
 }

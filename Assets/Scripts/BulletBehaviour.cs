@@ -18,16 +18,15 @@ public class BulletBehaviour : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collision.rigidbody && collision.rigidbody.bodyType == RigidbodyType2D.Dynamic && collision.rigidbody.CompareTag("Obstacle"))
-        {
-            collision.rigidbody.AddForce(Vector2.right * bulletSpeed/4, ForceMode2D.Impulse);
-        }
         if (hitSpark)
         {
             hitSpark.transform.position = transform.position;
             hitSpark.Play();
         }
-        Disable();
+        if(!transform.CompareTag("Projectile") || !collision.transform.CompareTag("Player"))
+        {
+            Disable();
+        }
     }
 
     public void Shoot(Vector3 position, Quaternion rotation, float bulletSpeed, ParticleSystem hitSpark)

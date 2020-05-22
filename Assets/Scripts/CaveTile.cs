@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.Tilemaps;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -12,6 +12,14 @@ public class CaveTile : Tile
     public bool enableCeilingMods;
     public Sprite leftCornerMod, midMod, rightCornerMod;
     public int leftTrigger, rightTrigger;
+
+    [Header("Extras")]
+    public GameManager.Environment environment;
+
+    public SpriteRenderer defaultDebris;
+    public List<Sprite> debrisSprites = new List<Sprite>();
+    public List<Sprite> folliageSprites = new List<Sprite>();
+
     // This refreshes itself and other CaveTiles that are orthogonally and diagonally adjacent
     public override void RefreshTile(Vector3Int location, ITilemap tilemap)
     {

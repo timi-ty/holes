@@ -187,10 +187,10 @@ public class ObjectPool : ScriptableObject
     }
 
 #if UNITY_EDITOR
-    [MenuItem("Assets/Create/Sprite Mask Pool")]
+    [MenuItem("Assets/Create/Object Pool")]
     public static void CreateSpriteMaskPool()
     {
-        string path = EditorUtility.SaveFilePanelInProject("Save Sprite Mask Pool", "New Sprite Mask Pool", "Asset", "Save Sprite Mask Pool", "Assets");
+        string path = EditorUtility.SaveFilePanelInProject("Save Object Pool", "New Object Pool", "Asset", "Save Object Pool", "Assets");
         if (path == "")
             return;
         AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<ObjectPool>(), path);

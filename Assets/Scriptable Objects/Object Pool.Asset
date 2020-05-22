@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c7687958cf656b40a4e222aeccbd32e, type: 3}
   m_Name: Object Pool
   m_EditorClassIdentifier: 
-  maskCount: 1000
+  maskCount: 2000
   bulletCount: 100
   bulletPrefab: {fileID: 4298085487750884989, guid: 2baaf1ffb83b3c54babdf1173dd30eff,
     type: 3}

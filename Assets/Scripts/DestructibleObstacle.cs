@@ -52,7 +52,7 @@ public class DestructibleObstacle : MonoBehaviour
                     new Vector2(fragmentBox.size.x / 2, 0), transform.lossyScale) + (Vector2)transform.position;
                 Quaternion damageRotation = Quaternion.Euler(0, 0, (Random.value * 60) - 30);
 
-                if (fragmentBox.size.x <= 0.003f)
+                if (fragmentBox.size.x <= 0.03f)
                 {
                     damagePoint.x = spriteRenderer.bounds.max.x;
                     lumpDamage = 999;
@@ -60,13 +60,15 @@ public class DestructibleObstacle : MonoBehaviour
                 }
 
                 SpriteMask mask = spriteMaskPool.GetMask(transform);
-                if (mask && lumpDamage >= 5)
+                if (mask && lumpDamage >= 8)
                 {
                     mask.sprite = damageMask;
                     mask.transform.localScale = damageMaskScale;
                     if (lumpDamage == 999)
                         damagePoint.x -= mask.bounds.extents.x;
                     mask.transform.SetPositionAndRotation(damagePoint, damageRotation);
+
+                    GameManager.BumpScore(1);
 
                     lumpDamage = 0;
                 }
@@ -125,6 +127,7 @@ public class DestructibleObstacle : MonoBehaviour
         Sprite damageMask, ParticleSystem damageDebris, Vector2? obstacleSize)
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+
         if (sprite)
         {
             spriteRenderer.sprite = sprite;
