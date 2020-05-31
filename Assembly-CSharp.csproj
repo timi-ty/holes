@@ -66,9 +66,12 @@
     <Compile Include="Assets\Scripts\Background.cs" />
     <Compile Include="Assets\Scripts\BackgroundEditor.cs" />
     <Compile Include="Assets\Scripts\BackgroundManager.cs" />
+    <Compile Include="Assets\Scripts\BossBall.cs" />
+    <Compile Include="Assets\Scripts\BossBehaviour.cs" />
+    <Compile Include="Assets\Scripts\BossVulnerability.cs" />
     <Compile Include="Assets\Scripts\Boundary.cs" />
     <Compile Include="Assets\Scripts\BulletBehaviour.cs" />
-    <Compile Include="Assets\Scripts\CameraManager.cs" />
+    <Compile Include="Assets\Scripts\CameraDirector.cs" />
     <Compile Include="Assets\Scripts\CaveTile.cs" />
     <Compile Include="Assets\Scripts\CaveTileEditor.cs" />
     <Compile Include="Assets\Scripts\DestructibleObstacle.cs" />
@@ -84,11 +87,13 @@
     <Compile Include="Assets\Scripts\ObstacleSpawner.cs" />
     <Compile Include="Assets\Scripts\ObstaclesData.cs" />
     <Compile Include="Assets\Scripts\PlayerBehaviour.cs" />
+    <Compile Include="Assets\Scripts\PlayerStats.cs" />
     <Compile Include="Assets\Scripts\Propeller.cs" />
     <Compile Include="Assets\Scripts\SelfDestruct.cs" />
     <Compile Include="Assets\Scripts\SpikeTrap.cs" />
     <Compile Include="Assets\Scripts\StoryManager.cs" />
     <Compile Include="Assets\Scripts\StoryScript.cs" />
+    <Compile Include="Assets\Scripts\StoryScriptEditor.cs" />
     <Compile Include="Assets\Scripts\SwingingObstacle.cs" />
     <Compile Include="Assets\Scripts\TileAssembler.cs" />
     <Compile Include="Assets\Scripts\TilemapManager.cs" />

@@ -29,11 +29,11 @@ public class ObstacleSpawner : MonoBehaviour
         {
             int spawnOdds = Mathf.RoundToInt(1.0f / spawnProbability);
             int spawnRaffle = Random.Range(1, spawnOdds + 1);
-            if(spawnRaffle == 1)
+            if(spawnRaffle == 1 && !GameManager.bossFightInProgress)
             {
                 int spawn = Random.Range(0, 2);
-                if (spawn == 0) SpawnDestructibleObstacle();
-                else SpawnSwingingObstacle();
+                if (spawn == 0 && !GameManager.bossFightPending && !GameManager.levelUpPending) SpawnDestructibleObstacle();
+                else if(!GameManager.isScreenOcluded) SpawnSwingingObstacle();
             }
             timer = 0;
         }

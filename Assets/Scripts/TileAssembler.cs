@@ -13,7 +13,7 @@ public class TileAssembler : MonoBehaviour
 
     private SpriteRenderer defaultDebris;
     private List<Sprite> debrisSprites = new List<Sprite>();
-    private List<Sprite> folliageSprites = new List<Sprite>();
+    private List<Sprite> foliageSprites = new List<Sprite>();
 
     [HideInInspector]
     public GameManager.Environment activeEnvironment;
@@ -23,7 +23,7 @@ public class TileAssembler : MonoBehaviour
         tilemap = GetComponent<Tilemap>();
         tilemapCollider = GetComponent<Collider2D>();
         matrixSize[1] = Mathf.CeilToInt(Boundary.visibleWorldHeight) + (Mathf.CeilToInt(Boundary.visibleWorldHeight) % 2);
-        matrixSize[0] = 3 * matrixSize[1];
+        matrixSize[0] = 1 * matrixSize[1];
         tilemap.size = new Vector3Int(matrixSize[0], matrixSize[1], 0);
     }
 
@@ -46,15 +46,42 @@ public class TileAssembler : MonoBehaviour
         }
     }
 
-    public void AssembleTiles(CaveTile caveTile)
+    private void BuildFlatMatrix()
+    {
+        tileMatrix = new int[matrixSize[1], matrixSize[0]];
+        for (int x = 0; x < tileMatrix.GetLength(1); x += 2)
+        {
+            int startPosLow = tileMatrix.GetLength(0);
+            int endPosLow = (tileMatrix.GetLength(0) - 1) * 3 / 4;
+
+            int startPosHigh = (tileMatrix.GetLength(0) - 1) * 1 / 4;
+            int endPosHigh = 0;
+
+            if(Camera.main.aspect <= 0.6f)
+            {
+                Debug.Log("ADJUSTED");
+                startPosHigh += 1;
+                endPosLow -= 1;
+            }
+
+            for (int y = tileMatrix.GetLength(0) - 1; y >= 0; y--)
+            {
+                if (y <= startPosLow && y >= endPosLow) tileMatrix[y, x] = tileMatrix[y, x + 1] = 1;
+                else if ((y <= startPosHigh && y >= endPosHigh)) tileMatrix[y, x] = tileMatrix[y, x + 1] = 1;
+            }
+        }
+    }
+
+    public void AssembleTiles(CaveTile caveTile, bool isFlatNeeded)
     {
         defaultDebris = caveTile.defaultDebris;
         debrisSprites = caveTile.debrisSprites;
-        folliageSprites = caveTile.folliageSprites;
+        foliageSprites = caveTile.folliageSprites;
         activeEnvironment = caveTile.environment;
 
         tilemap.ClearAllTiles();
-        BuildMatrix();
+        if (isFlatNeeded) BuildFlatMatrix();
+        else BuildMatrix();
 
         for (int x = 0; x < tileMatrix.GetLength(1); x += 2)
         {
@@ -69,6 +96,7 @@ public class TileAssembler : MonoBehaviour
                 }
             }
         }
+
         //Paint two extra layers on top and bottom to fix all tile mismatches
         for (int x = 0; x < tileMatrix.GetLength(1); x ++)
         {
@@ -125,23 +153,23 @@ public class TileAssembler : MonoBehaviour
 
     public void SpawnFolliage()
     {
-        int spriteRaffle = Random.Range(0, folliageSprites.Count);
-        Sprite folliageSprite = folliageSprites[spriteRaffle];
+        int spriteRaffle = Random.Range(0, foliageSprites.Count);
+        Sprite foliageSprite = foliageSprites[spriteRaffle];
 
         GameObject folliageObject = new GameObject();
-        SpriteRenderer folliageRenderer = folliageObject.AddComponent<SpriteRenderer>();
-        folliageRenderer.sprite = folliageSprite;
+        SpriteRenderer foliageRenderer = folliageObject.AddComponent<SpriteRenderer>();
+        foliageRenderer.sprite = foliageSprite;
 
-        if (Boundary.visibleWorldMax.x + folliageRenderer.bounds.extents.x > tilemapCollider.bounds.max.x ||
+        if (Boundary.visibleWorldMax.x + foliageRenderer.bounds.extents.x > tilemapCollider.bounds.max.x ||
             Boundary.visibleWorldMax.x < tilemapCollider.bounds.min.x)
         {
             Destroy(folliageObject);
             return;
         }
 
-        folliageObject.name = folliageSprite.name + " Folliage";
+        folliageObject.name = foliageSprite.name + " Foliage";
         folliageObject.transform.localScale = Vector3.one * (0.5f + (Random.value * 0.5f));
-        float xPos = Boundary.visibleWorldMax.x + (Boundary.visibleWorldSize.x * 0.1f) + folliageRenderer.bounds.size.x;
+        float xPos = Boundary.visibleWorldMax.x + (Boundary.visibleWorldSize.x * 0.1f) + foliageRenderer.bounds.size.x;
         float yPos = Boundary.visibleWorldMin.y;
 
         Vector2 ceilingPoint = Vector2.one * float.NegativeInfinity;
@@ -178,16 +206,16 @@ public class TileAssembler : MonoBehaviour
             return;
         }
 
-        yPos = floorPoint.y + folliageRenderer.bounds.extents.y;
+        yPos = floorPoint.y + foliageRenderer.bounds.extents.y;
 
         folliageObject.transform.SetParent(parent);
         folliageObject.transform.position = new Vector2(xPos, yPos);
 
         /*********************************************************************************************************/
 
-        Vector3 bottomLeft = folliageRenderer.bounds.min;
+        Vector3 bottomLeft = foliageRenderer.bounds.min;
         RaycastHit2D rayHitLeft = Physics2D.Raycast(bottomLeft, Vector2.down, Boundary.visibleWorldSize.y, layerMask);
-        RaycastHit2D rayHitMiddle = Physics2D.Raycast(new Vector2(folliageRenderer.bounds.center.x, folliageRenderer.bounds.min.y), Vector2.down,
+        RaycastHit2D rayHitMiddle = Physics2D.Raycast(new Vector2(foliageRenderer.bounds.center.x, foliageRenderer.bounds.min.y), Vector2.down,
             Boundary.visibleWorldSize.y, layerMask);
         Vector3 nudgePos = Vector2.zero;
 
@@ -200,7 +228,7 @@ public class TileAssembler : MonoBehaviour
 
         folliageObject.transform.position += nudgePos;
 
-        Vector3 bottomRight = new Vector2(folliageRenderer.bounds.max.x, folliageRenderer.bounds.min.y);
+        Vector3 bottomRight = new Vector2(foliageRenderer.bounds.max.x, foliageRenderer.bounds.min.y);
         RaycastHit2D rayHitRight = Physics2D.Raycast(bottomRight, Vector2.down, Boundary.visibleWorldSize.y, layerMask);
         nudgePos = Vector2.zero;
 
@@ -214,12 +242,12 @@ public class TileAssembler : MonoBehaviour
         folliageObject.transform.position += nudgePos;
 
         float minFloor = float.PositiveInfinity;
-        for (float xPoint = folliageRenderer.bounds.min.x; xPoint < folliageRenderer.bounds.max.x; xPoint += 0.05f)
+        for (float xPoint = foliageRenderer.bounds.min.x; xPoint < foliageRenderer.bounds.max.x; xPoint += 0.05f)
         {
             minFloor = Mathf.Min(Physics2D.Raycast(new Vector2(xPoint, yPos), Vector2.down, Boundary.visibleWorldSize.y, layerMask).point.y, minFloor);
         }
 
-        yPos = minFloor + folliageRenderer.bounds.extents.y;
+        yPos = minFloor + foliageRenderer.bounds.extents.y;
 
         folliageObject.transform.position = new Vector2(folliageObject.transform.position.x, yPos);
     }

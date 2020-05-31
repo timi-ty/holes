@@ -150,7 +150,7 @@ public class BackgroundManager : MonoBehaviour
         GameObject overlayObject = new GameObject();
         backgroundOverlay = overlayObject.transform;
         backgroundOverlay.SetPositionAndRotation(Boundary.visibleWorldCentre, Quaternion.identity);
-        backgroundOverlay.localScale = new Vector3(overlayScaleX, overlayScaleY, 1);
+        backgroundOverlay.localScale = new Vector3(overlayScaleX, overlayScaleY, 1) * 1.1f;
         backgroundOverlay.SetParent(transform);
         SpriteRenderer overlayRenderer = overlayObject.AddComponent<SpriteRenderer>();
         overlayRenderer.sprite = overlay;

@@ -50,7 +50,7 @@ public class ForegroundManager : MonoBehaviour
 
         if (!isInTransition)
         {
-            transitionWall.HideWall();
+            if(transitionWall.gameObject.activeInHierarchy) transitionWall.HideWall();
         }
     }
 

@@ -7,9 +7,13 @@ public class TilemapManager : MonoBehaviour
     private TileAssembler tilemap1;
     private TileAssembler tilemap2;
     private TileAssembler leadingTilemap;
+    private TileAssembler flatTilemap;
     private Collider2D tilemap1Collider;
     private Collider2D tilemap2Collider;
     private Collider2D leadingTilemapCollider;
+    private Collider2D flatTilemapCollider;
+
+    private bool transitioningBackground;
 
     [Header("Parameters")]
     public float debrisDensity;
@@ -33,8 +37,8 @@ public class TilemapManager : MonoBehaviour
         tilemap1.Prepare(1);
         tilemap2.Prepare(2);
 
-        tilemap1.AssembleTiles(caveTiles[GameManager.tileIndex]);
-        tilemap2.AssembleTiles(caveTiles[GameManager.tileIndex]);
+        tilemap1.AssembleTiles(caveTiles[GameManager.tileIndex], isFlatNeeded:false);
+        tilemap2.AssembleTiles(caveTiles[GameManager.tileIndex], isFlatNeeded: false);
 
         tilemap1Collider = tilemap1.GetComponent<Collider2D>();
         tilemap2Collider = tilemap2.GetComponent<Collider2D>();
@@ -53,18 +57,30 @@ public class TilemapManager : MonoBehaviour
         ScrollTileMaps();
 
         ConfirmEnvironmentSync();
+
+        ConfirmFlatLand();
     }
 
     void ScrollTileMaps()
     {
         if (tilemap1.transform.position.x <= Boundary.visibleWorldCentre.x && tilemap2.transform.position.x < tilemap1.transform.position.x)
         {
-            tilemap2.AssembleTiles(caveTiles[GameManager.tileIndex]);
-            if(GameManager.levelUpPending)
+            bool isFlatNeeded = false;
+
+            if (GameManager.levelUpPending && leadingTilemap == null)
             {
                 leadingTilemap = tilemap2;
                 leadingTilemapCollider = tilemap2Collider;
             }
+
+            if (GameManager.bossFightPending && flatTilemap == null)
+            {
+                flatTilemap = tilemap2;
+                flatTilemapCollider = tilemap2Collider;
+                isFlatNeeded = true;
+            }
+
+            tilemap2.AssembleTiles(caveTiles[GameManager.tileIndex], isFlatNeeded);
 
             tilemap2.transform.position = tilemap1.transform.position + (Vector3.right * 
                 (tilemap2Collider.bounds.extents.x + tilemap1Collider.bounds.extents.x));
@@ -76,12 +92,22 @@ public class TilemapManager : MonoBehaviour
 
         if (tilemap2.transform.position.x <= Boundary.visibleWorldCentre.x && tilemap1.transform.position.x < tilemap2.transform.position.x)
         {
-            tilemap1.AssembleTiles(caveTiles[GameManager.tileIndex]);
-            if (GameManager.levelUpPending)
+            bool isFlatNeeded = false;
+
+            if (GameManager.levelUpPending && leadingTilemap == null)
             {
                 leadingTilemap = tilemap1;
                 leadingTilemapCollider = tilemap1Collider;
             }
+
+            if (GameManager.bossFightPending && flatTilemap == null)
+            {
+                flatTilemap = tilemap1;
+                flatTilemapCollider = tilemap1Collider;
+                isFlatNeeded = true;
+            }
+
+            tilemap1.AssembleTiles(caveTiles[GameManager.tileIndex], isFlatNeeded);
 
             tilemap1.transform.position = tilemap2.transform.position + (Vector3.right * 
                 (tilemap1Collider.bounds.extents.x + tilemap2Collider.bounds.extents.x));
@@ -92,7 +118,6 @@ public class TilemapManager : MonoBehaviour
         }
     }
 
-    bool transitioningBackground;
     private void ConfirmEnvironmentSync()
     {
         if (!GameManager.levelUpPending || !leadingTilemap) return;
@@ -112,14 +137,31 @@ public class TilemapManager : MonoBehaviour
         }
     }
 
+    private void ConfirmFlatLand()
+    {
+        if (!GameManager.bossFightPending || !flatTilemap) return;
+
+        if (flatTilemap.transform.position.x + 0.75f * flatTilemapCollider.bounds.extents.x <= Boundary.visibleWorldMax.x)
+        {
+            Debug.Log("FlatLand Confirmed");
+            GameManager.StartBossFight(flatTilemap.activeEnvironment);
+            flatTilemap = null;
+            flatTilemapCollider = null;
+        }
+    }
+
     private void SpawnDebris()
     {
+        if (GameManager.bossFightInProgress) return;
+
         tilemap1.SpawnDebris();
         tilemap2.SpawnDebris();
     }
 
     private void SpawnFolliage()
     {
+        if (GameManager.bossFightInProgress) return;
+
         tilemap1.SpawnFolliage();
         tilemap2.SpawnFolliage();
     }

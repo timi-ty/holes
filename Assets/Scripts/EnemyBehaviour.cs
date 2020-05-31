@@ -65,7 +65,7 @@ public class EnemyBehaviour : MonoBehaviour
 
         AvoidObstacles();
 
-        if (transform.position.x + size.x < Boundary.visibleWorldMin.x)
+        if (transform.position.x + size.x < Boundary.visibleWorldMin.x || GameManager.isScreenOcluded)
         {
             Die();
         }
@@ -86,7 +86,7 @@ public class EnemyBehaviour : MonoBehaviour
         if (collision.transform.CompareTag("Explosive"))
         {
             ExplosiveTrap explosive = collision.gameObject.GetComponent<ExplosiveTrap>();
-            if (!explosive.isHot) return; 
+            if (!explosive || !explosive.isHot || !collision.rigidbody) return; 
             collision.rigidbody.AddForce(collision.GetContact(0).normal * -20, ForceMode2D.Impulse);
             EnemyManager.KilledByPlayer(enemy: this, skillfulKill: true);
             Die();
@@ -146,6 +146,7 @@ public class EnemyBehaviour : MonoBehaviour
     private void Die()
     {
         deathExplosion = Instantiate(deathExplosion);
+        CameraDirector.CreateVibration(CameraDirector.VibrationLevel.Medium, 0.25f);
         deathExplosion.transform.position = transform.position;
         deathExplosion.Play();
         Destroy(gameObject);

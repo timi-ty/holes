@@ -15,12 +15,13 @@ public class PlayerBehaviour : MonoBehaviour
     public ParticleSystem shotSpark;
     public ParticleSystem hitSpark;
     public ParticleSystem deathExplosion;
+    [Range(800, 1500)] //I determined the RPM range for optimal experience and performance 
     public float shootRPM;
     public Color bulletColor;
     public int maxOverdrive;
-    //public GameObject sheild;
-    private int overDrive;
     public bool isInEditorMode;
+    private int overDrive;
+    private Vector2 autoPilotTarget;
     private float angle;
     private float health = 3;
     public Image healthBar;
@@ -46,6 +47,8 @@ public class PlayerBehaviour : MonoBehaviour
 
         propeller = GetComponentInChildren<Propeller>();
         propeller.speed = shootRPM / 2;
+
+        autoPilotTarget = playerBody.position;
     }
 
     void Update()
@@ -108,7 +111,7 @@ public class PlayerBehaviour : MonoBehaviour
         }
         else
         {
-            ApplyInertia(Vector2.right * Time.fixedDeltaTime * GameManager.gameSpeed);
+            AutoPilot();
         }
 
         playerBody.MoveRotation(angle);
@@ -116,7 +119,7 @@ public class PlayerBehaviour : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.transform.CompareTag("EnemyProjectile"))// && !sheild.activeSelf)
+        if (collision.transform.CompareTag("EnemyProjectile"))
         {
             StartCoroutine(FlashRed());
             health--;
@@ -140,9 +143,10 @@ public class PlayerBehaviour : MonoBehaviour
                 Die();
             }
         }
-        if (collision.transform.CompareTag("Explosive"))// && !sheild.activeSelf)
+        if (collision.transform.CompareTag("Explosive"))
         {
-            collision.rigidbody.AddForce(collision.GetContact(0).normal * -20, ForceMode2D.Impulse);
+            if(collision.rigidbody)
+                collision.rigidbody.AddForce(collision.GetContact(0).normal * -20, ForceMode2D.Impulse);
             Die();
         }
     }
@@ -173,15 +177,15 @@ public class PlayerBehaviour : MonoBehaviour
         angle = (angle % 360) + (angle < 0 ? 360 : 0);
     }
 
-    private void ApplyInertia(Vector2 deltaPos)
+    private void ApplyInertia(float deltaX, float newY)
     {
         Boundary playerBounds = Boundary.ScreenBoundary(playerSize);
 
-        Vector2 position = playerBody.position + deltaPos;
+        Vector2 newPos = new Vector2(playerBody.position.x + deltaX, newY);
 
-        Vector2 clampedNewPos = new Vector2(Mathf.Clamp(position.x,
+        Vector2 clampedNewPos = new Vector2(Mathf.Clamp(newPos.x,
                                             playerBounds.leftBound, playerBounds.rightBound),
-                                            Mathf.Clamp(position.y,
+                                            Mathf.Clamp(newPos.y,
                                             playerBounds.downBound, playerBounds.upBound));
 
         playerBody.MovePosition(clampedNewPos);
@@ -189,9 +193,67 @@ public class PlayerBehaviour : MonoBehaviour
         angle = Mathf.LerpAngle(angle, 0, Time.fixedDeltaTime * 5);
     }
 
+    private void AutoPilot()
+    {
+        float deltaX = Time.fixedDeltaTime * GameManager.gameSpeed;
+
+        if (!GameManager.isScreenOcluded)
+        {
+            ApplyInertia(deltaX, playerBody.position.y);
+            return;
+        }
+
+        int layerMask = LayerMask.GetMask("Tilemap");
+
+        RaycastHit2D rayHitUp = Physics2D.Raycast(playerBody.position, Vector2.up, Boundary.visibleWorldSize.y, layerMask);
+        RaycastHit2D rayHitDown = Physics2D.Raycast(playerBody.position, Vector2.down, Boundary.visibleWorldSize.y, layerMask);
+
+        if (rayHitUp.transform && rayHitUp.point.y - playerBody.position.y < spriteRenderer.bounds.size.y * 0.6f)
+        {
+            autoPilotTarget.y -= Time.fixedDeltaTime * GameManager.gameSpeed;
+        }
+        if (rayHitDown.transform && playerBody.position.y - rayHitDown.point.y < spriteRenderer.bounds.size.y * 0.6f)
+        {
+            autoPilotTarget.y += Time.fixedDeltaTime * GameManager.gameSpeed;
+        }
+
+        float newY = Mathf.Lerp(playerBody.position.y, autoPilotTarget.y, Time.fixedDeltaTime * 5 * GameManager.gameSpeed);
+
+        ApplyInertia(deltaX, newY);
+
+        Vector2 raycastOrigin = new Vector2(playerBody.position.x + spriteRenderer.bounds.size.x, Boundary.visibleWorldMin.y);
+        RaycastHit2D forwardRay = Physics2D.Raycast(playerBody.position + new Vector2(spriteRenderer.bounds.size.x, 0), Vector2.right);
+        bool isBlocked = forwardRay.transform && Mathf.Abs(forwardRay.point.x - playerBody.position.x) < 4 * spriteRenderer.bounds.size.x;
+        bool needsNewTarget = playerBody.position.x > autoPilotTarget.x - spriteRenderer.bounds.size.x;
+        if (isBlocked && needsNewTarget)
+        {
+            forwardRay = Physics2D.Raycast(raycastOrigin, Vector2.right);
+        }
+        else return;
+        while (raycastOrigin.y <= Boundary.visibleWorldMax.y)
+        {
+            raycastOrigin += Vector2.up * 0.1f;
+
+            RaycastHit2D tempFwrRay = Physics2D.Raycast(raycastOrigin, Vector2.right);
+
+            if (tempFwrRay.transform && tempFwrRay.point.x > forwardRay.point.x)
+            {
+                forwardRay = tempFwrRay;
+            }
+            else if (!tempFwrRay.transform)
+            {
+                autoPilotTarget = new Vector2(Boundary.visibleWorldMax.x, raycastOrigin.y) + Vector2.up * spriteRenderer.bounds.extents.y;
+                return;
+            }
+        }
+        if (forwardRay.transform && forwardRay.point.x > playerBody.position.x)
+        {
+            autoPilotTarget = forwardRay.point + Vector2.up * spriteRenderer.bounds.extents.y;
+        }
+    }
+
     IEnumerator Shoot()
     {
-        //sheild.SetActive(false);
         propeller.speed = shootRPM * 2;
         if (isInEditorMode)
         {
@@ -201,6 +263,7 @@ public class PlayerBehaviour : MonoBehaviour
                 bulletPool.ShootBullet(playerGun.position, playerGun.rotation * sporadic, bulletSpeed: 10, hitSpark);
                 shotSpark.transform.SetPositionAndRotation(playerGun.position, playerGun.rotation);
                 shotSpark.Play();
+                CameraDirector.CreateVibration(CameraDirector.VibrationLevel.Light, 60.0f / shootRPM);
                 yield return new WaitForSeconds(60.0f / shootRPM);
             }
             overDrive--;
@@ -217,7 +280,7 @@ public class PlayerBehaviour : MonoBehaviour
             }
             overDrive--;
         }
-        //sheild.SetActive(true);
+
         propeller.speed = shootRPM / 2;
     }
 
@@ -238,6 +301,7 @@ public class PlayerBehaviour : MonoBehaviour
         deathExplosion = Instantiate(deathExplosion);
         deathExplosion.transform.position = transform.position;
         deathExplosion.Play();
+        CameraDirector.CreateVibration(CameraDirector.VibrationLevel.Heavy, 0.25f);
         Destroy(gameObject);
     }
 }

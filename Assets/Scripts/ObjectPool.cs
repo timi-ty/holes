@@ -58,6 +58,7 @@ public class ObjectPool : ScriptableObject
 
             bullet.name = "Bullet " + (i + 1 + existingCount);
             bullet.transform.SetParent(bulletHolder.transform);
+            bullet.gameObject.SetActive(false);
         }
 
         Debug.Log("Generated " + bulletCount + " more bullets");
@@ -86,6 +87,7 @@ public class ObjectPool : ScriptableObject
 
             bullet.name = "Bullet " + (i + 1 + existingCount);
             bullet.transform.SetParent(enemyBulletHolder.transform);
+            bullet.gameObject.SetActive(false);
         }
 
         Debug.Log("Generated " + bulletCount + " more enemy bullets");
@@ -113,7 +115,7 @@ public class ObjectPool : ScriptableObject
             DestroyImmediate(enemyBulletHolder.transform.GetChild(i).gameObject);
         }
         DestroyImmediate(bulletHolder);
-
+        DestroyImmediate(enemyBulletHolder);
         Debug.Log("Deleted bullet pool");
     }
 
@@ -156,14 +158,14 @@ public class ObjectPool : ScriptableObject
 
     public void ShootEnemyBullet(Vector3 bulletPosition, Quaternion bulletRotation, float bulletSpeed, ParticleSystem hitSpark, Sprite bulletSprite)
     {
-        if (bulletHolder.transform.childCount > 0)
+        if (enemyBulletHolder.transform.childCount > 0)
         {
 
             BulletBehaviour bullet = enemyBulletHolder.transform.GetChild(0).GetComponent<BulletBehaviour>();
             if (bullet && !bullet.gameObject.activeSelf)
             {
-                bullet.transform.SetAsLastSibling();
                 bullet.gameObject.SetActive(true);
+                bullet.transform.SetAsLastSibling();
                 SpriteRenderer spriteRenderer = bullet.GetComponent<SpriteRenderer>();
                 spriteRenderer.sprite = bulletSprite;
                 bullet.Shoot(bulletPosition, bulletRotation, bulletSpeed, hitSpark);

@@ -8,7 +8,6 @@ public class BulletBehaviour : MonoBehaviour
     private ParticleSystem hitSpark;
     private void Start()
     {
-        Disable();
     }
 
     void Update()

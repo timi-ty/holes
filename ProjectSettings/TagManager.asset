@@ -10,6 +10,7 @@ TagManager:
   - EnemyProjectile
   - Sheild
   - Explosive
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -20,7 +21,7 @@ TagManager:
   - 
   - 
   - Tilemap
-  - 
+  - Ignore Bullet
   - 
   - 
   - 

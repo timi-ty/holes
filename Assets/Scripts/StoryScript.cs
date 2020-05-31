@@ -8,11 +8,26 @@ using UnityEditor;
 
 public class StoryScript : ScriptableObject
 {
-    public List<string> storyBlocks = new List<string>();
-    
-    public string GetStoryBlock(int i)
+    public List<string> storyBlocksTitles = new List<string>();
+    public List<string> storyBlockBodies = new List<string>();
+    public int storyBlockCount => storyBlockBodies.Count;
+
+    public string[] GetStoryBlock(int i)
     {
-        return storyBlocks[i];
+        string[] block = { storyBlocksTitles[i], storyBlockBodies[i] };
+        return block;
+    }
+
+    public void AddStoryBlock()
+    {
+        storyBlocksTitles.Add("");
+        storyBlockBodies.Add("");
+    }
+
+    public void DeleteStoryBlock(int i)
+    {
+        storyBlocksTitles.RemoveAt(i);
+        storyBlockBodies.RemoveAt(i);
     }
 
 #if UNITY_EDITOR
@@ -23,7 +38,7 @@ public class StoryScript : ScriptableObject
         string path = EditorUtility.SaveFilePanelInProject("Save Story", "New Story", "Asset", "Save Story", "Assets");
         if (path == "")
             return;
-        AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<Background>(), path);
+        AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<StoryScript>(), path);
     }
 #endif
 }

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e74d9ae0fab95c47895a8b63e77fe78, type: 3}
+  m_Name: Phase 1 - Rapid Rounds
+  m_EditorClassIdentifier: 
+  storyBlocksTitles:
+  - 'Act 1:
+
+    Rapid Rounds!'
+  - 'Act 2:
+
+    Corners are Edgy'
+  storyBlockBodies:
+  - In the world of Euclidia, the round shapes are at the top of society. But a modest
+    circular family is devastated when their second son grows three deformities from
+    his back.
+  - Rapid was a "cornermind", a community of shapes that revolted against the rule
+    of the perfectly round and mighty. Rapid's father, Sector, had begged him for
+    years to leave the community.
+  scrollPosition: {x: 0, y: 0}

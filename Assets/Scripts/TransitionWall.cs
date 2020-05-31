@@ -28,9 +28,6 @@ public class TransitionWall : MonoBehaviour
         wallRenderer.size += offset; // Refer to offset above for explanation.
         wallShadow.transform.localScale = transform.localScale;
         wallShadow.size = wallRenderer.size + diff;
-
-        transform.position = new Vector3(Boundary.visibleWorldMax.x +
-            wallRenderer.bounds.extents.x, Boundary.visibleWorldCentre.y);
     }
 
     public void ShowWall()
@@ -51,6 +48,8 @@ public class TransitionWall : MonoBehaviour
         {
             wallRenderer.enabled = false;
             wallShadow.enabled = false;
+
+            GameManager.TransitionConcluded();
         }
     }
 

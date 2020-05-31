@@ -13,16 +13,28 @@ public class GameManager : MonoBehaviour
     [Header("Foreground Manager")]
     public ForegroundManager foregroundManager;
 
+    [Header("Enemy Manager")]
+    public EnemyManager enemyManager;
+
+    private StoryManager storyManager;
+
     public enum Environment { Desert, Snow };
 
     private const float gameAcceleration = 0.1f / 40;
-    private const float levelDuration = 40;
+    private const float levelDuration = 80;
+    [Header("GameSpeed")]
+    public float _gameSpeed;
 
-    public static float gameSpeed;
+    public static float gameSpeed { get => gameManager._gameSpeed; private set { gameManager._gameSpeed = value; }}
     public static float enemySpawnRPM;
     public static int tileIndex;
     public static int tileCount;
     public static bool levelUpPending;
+    public static bool bossFightPending;
+    public static bool bossFightInProgress;
+    public static bool isScreenOcluded;
+
+    private static float gameSpeedBeforeBoss;
 
     private int _score;
     private int score
@@ -38,43 +50,48 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI scoreText;
 
     private float gameTimer;
-    private int level;
+    private int game_level;
+    
 
     void Start()
     {
         gameTimer = 0;
 
-        level = 0;
+        game_level = 0;
 
         score = 0;
 
         gameManager = this;
 
-        LevelUp();
+        storyManager = GetComponent<StoryManager>();
+
+        GameLevelUp();
+
+        //Invoke("PrepareForBossFight", 10);
     }
 
     void Update()
     {
-        gameTimer += Time.deltaTime;
+        gameTimer += bossFightInProgress ? 0 : Time.deltaTime;
 
-        gameSpeed += gameAcceleration * Time.deltaTime;
+        gameSpeed += bossFightInProgress ? 0 : gameAcceleration * Time.deltaTime;
 
-        if (gameTimer >= levelDuration * level)
+        if (gameTimer >= levelDuration * game_level)
         {
-            LevelUp();
+            GameLevelUp();
             gameTimer = 0;
         }
     }
 
-    private void LevelUp()
+    private void GameLevelUp()
     {
-        level++;
+        game_level++;
 
-        tileIndex = (level - 1) % tileCount;
+        tileIndex = (game_level - 1) % tileCount;
 
-        levelUpPending = level > 1 ? true : false;
+        levelUpPending = game_level > 1 ? true : false;
 
-        switch (level)
+        switch (game_level)
         {
             case 1:
                 gameSpeed = 0.8f;
@@ -86,14 +103,56 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void PlayerLevelUp()
+    {
+        
+    }
+
+    private void PrepareForBossFight()
+    {
+        //if (game_level > 1)
+        //{
+            bossFightPending = true;
+        //}
+    }
+
+    public static void StartBossFight(Environment bossEnvironment)
+    {
+        gameSpeedBeforeBoss = gameSpeed;
+        bossFightPending = false;
+        bossFightInProgress = true;
+        gameManager.enemyManager.SpawnBoss(bossEnvironment);
+    }
+
+    public static void FinishBossFight()
+    {
+        gameSpeed = gameSpeedBeforeBoss;
+        bossFightInProgress = false;
+
+        BumpScore(250);
+    }
+
     public static void BumpScore(int bump)
     {
         gameManager.score += bump;
     }
 
+    public static void StopCamera()
+    {
+        gameSpeed = 0;
+    }
+
     public static void StartEnvironmentTransition()
     {
+        //Disable enemy spawner
+        //Disable obstacle spawner
+        //Set player to auto-pilot
+
+        isScreenOcluded = true;
+
         gameManager.foregroundManager.StartTransition();
+        
+        gameManager.storyManager.ShowStoryBlock(gameManager.game_level);
     }
 
     public static void EndEnvironmentTransition(Environment newEnvironment)
@@ -102,6 +161,14 @@ public class GameManager : MonoBehaviour
         SetWeather(newEnvironment);
         SetBackground(newEnvironment);
         levelUpPending = false;
+    }
+
+    public static void TransitionConcluded()
+    {
+        //Enable enemy spawner
+        //Enable obstacle spawner
+        //Set player to normal controls
+        isScreenOcluded = false;
     }
 
     private static void SetWeather(Environment activeEnvironment)
